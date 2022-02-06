@@ -5,7 +5,7 @@ DATASEG
 ; --------------------------
 Xpos dw 64h ;X position
 Ypos dw 64h ;Y position
-DrawWidth dw 30
+DrawWidth dw 15
 ; --------------------------
 CODESEG
 ;
@@ -34,8 +34,8 @@ endp DrawPixel
 proc DrawLine
 mov ah,00 
 int 16h 
-cmp al, 108d
-je CallLine
+cmp al, 108 ;Checking if l is pressed
+je Line
 ret
 endp DrawLine
 
@@ -52,7 +52,7 @@ ret
 endp MoveLeft
 
 proc MoveUp
-inc[Ypos]
+inc [Ypos]
 call DrawPixel
 ret
 endp MoveUp
@@ -74,6 +74,18 @@ int 10h
 call DrawPixel
 jmp startingPoint
 
+Line:
+push [xPos] ;save Xpos to stack, to allow us to restore it's value
+mov cx, [DrawWidth] ;set loop to run drawWidth times
+LineLoop:
+push cx ;save cx value, since it will change during DrawPixel
+call DrawPixel ;draw pixel in loop
+inc [Xpos]
+pop cx ;restore cx value, along with line 35
+loop LineLoop
+pop [Xpos] ;restore Xpos value, along with line 32
+jmp startingPoint
+
 CallRight:
 call MoveRight
 jmp startingPoint
@@ -90,19 +102,8 @@ CallUp:
 call MoveUp
 jmp startingPoint
 
-CallLine:
-push [xPos] ;save Xpos to stack, to allow us to restore it's value
-mov cx, [DrawWidth] ;set loop to run drawWidth times
-LineLoop:
-push cx ;save cx value, since it will change during DrawPixel
-call DrawPixel ;draw pixel in loop
-inc [Xpos]
-pop cx ;restore cx value, along with line 35
-loop LineLoop
-pop [Xpos] ;restore Xpos value, along with line 32
-jmp startingPoint
-
 startingPoint:
+call DrawLine ;Checking if l is pressed and if it is draw a line
 
 mov ah, 00
 int 16h
@@ -122,7 +123,7 @@ call DrawLine ;Checking if l is pressed and if it is draw a line
 
 mov ah, 00
 int 16h
-cmp al, 77h ;Checking if s is pressed
+cmp al, 77h ;Checking if w is pressed
 je CallDown
 
 call ResetPixel ;Checking if r is pressed and if it is then reset
@@ -130,16 +131,8 @@ call DrawLine ;Checking if l is pressed and if it is draw a line
 
 mov ah, 00
 int 16h
-cmp al, 73h ;Checking if w is pressed
+cmp al, 73h ;Checking if s is pressed
 je CallUp
-
-call ResetPixel ;Checking if r is pressed and if it is then reset
-call DrawLine ;Checking if l is pressed and if it is draw a line
-
-mov ah,00
-int 16h
-cmp al, 6ch
-je CallLine
 
 call ResetPixel ;Checking if r is pressed and if it is then reset
 call DrawLine ;Checking if l is pressed and if it is draw a line
