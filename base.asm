@@ -138,7 +138,7 @@ call ResetPixel ;Checking if r is pressed and if it is then reset
 call DrawLine ;Checking if l is pressed and if it is draw a line
 
 jmp StartingPoint
-; --------------------------  
+; --------------------------
 exit:
     mov ax, 4c00h
     int 21h
